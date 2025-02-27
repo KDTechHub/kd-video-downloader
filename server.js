@@ -8,9 +8,9 @@ app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
-const API_BASE = "https://viddownloader.net/process"; // Updated API URL
+const API_BASE = "https://api.vidown.io/getLink?url="; // Using VidDownloader API
 
-// API Route to fetch video details
+// API Route to fetch video details from VidDownloader
 app.get("/api/download", async (req, res) => {
     const videoUrl = req.query.url;
     
@@ -20,29 +20,21 @@ app.get("/api/download", async (req, res) => {
 
     try {
         // Fetch data from VidDownloader API
-        const response = await axios.post(API_BASE, new URLSearchParams({ url: videoUrl }), {
-            headers: { "Content-Type": "application/x-www-form-urlencoded" }
-        });
-
+        const response = await axios.get(`${API_BASE}${encodeURIComponent(videoUrl)}`);
         const data = response.data;
 
-        if (!data || !data.links || data.links.length === 0) {
+        if (!data || !data.data) {
             return res.status(500).json({ error: "Failed to fetch video details" });
         }
 
         // Extract MP3 & MP4 download links
-        let mp3Link = null;
-        let mp4Link = null;
-
-        data.links.forEach(link => {
-            if (link.type === "audio") mp3Link = link.url;
-            if (link.type === "video") mp4Link = link.url;
-        });
+        const mp4Link = data.data.mp4.url || null;
+        const mp3Link = data.data.mp3.url || null;
 
         res.json({
-            title: data.title || "Unknown Title",
-            thumbnail: data.thumbnail || "",
-            duration: data.duration || "Unknown",
+            title: data.data.title || "Unknown Title",
+            thumbnail: data.data.thumbnail || "",
+            duration: data.data.duration || "Unknown",
             mp3: mp3Link,
             mp4: mp4Link
         });
