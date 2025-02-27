@@ -11,44 +11,22 @@ async function convertVideo() {
         // Show loading message
         document.getElementById("formatOptions").classList.add("d-none");
 
-        // Use VidDownloader API for fetching download links
-        let response = await fetch("https://viddownloader.net/process", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: new URLSearchParams({ "url": url })
-        });
-
+        // Send request to our backend (`server.js`)
+        let response = await fetch(`/api/download?url=${encodeURIComponent(url)}`);
         let data = await response.json();
 
-        if (!data || !data.links || data.links.length === 0) {
-            alert("Error: Could not fetch download links. Try again later.");
-            return;
-        }
+        if (data.error) {
+            alert("Error: " + data.error);
+        } else {
+            // Show format options only if API returns valid links
+            document.getElementById("formatOptions").classList.remove("d-none");
 
-        // Extract MP3 and MP4 links
-        let mp3Link = null;
-        let mp4Link = null;
+            // Set download links dynamically
+            document.getElementById("downloadMp3").setAttribute("data-url", data.mp3);
+            document.getElementById("downloadMp4").setAttribute("data-url", data.mp4);
 
-        data.links.forEach(link => {
-            if (link.type === "audio") mp3Link = link.url;
-            if (link.type === "video") mp4Link = link.url;
-        });
-
-        if (!mp3Link && !mp4Link) {
-            alert("No valid download links found.");
-            return;
-        }
-
-        // Show format options only if API returns valid links
-        document.getElementById("formatOptions").classList.remove("d-none");
-
-        // Set download links dynamically
-        if (mp3Link) {
-            document.getElementById("downloadMp3").setAttribute("data-url", mp3Link);
+            // Update button text to indicate available formats
             document.getElementById("downloadMp3").textContent = "Download MP3";
-        }
-        if (mp4Link) {
-            document.getElementById("downloadMp4").setAttribute("data-url", mp4Link);
             document.getElementById("downloadMp4").textContent = "Download MP4";
         }
     } catch (error) {
