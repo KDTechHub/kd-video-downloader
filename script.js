@@ -12,7 +12,7 @@ async function convertVideo() {
         document.getElementById("formatOptions").classList.add("d-none");
 
         // Send request to our backend (`server.js`)
-        let response = await fetch(`/api/download?url=${encodeURIComponent(url)}`);
+        let response = await fetch(`https://kd-video-downloader.vercel.app/api/download?url=${encodeURIComponent(url)}`);
         let data = await response.json();
 
         if (data.error) {
