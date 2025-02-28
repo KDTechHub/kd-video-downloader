@@ -6,7 +6,7 @@ async function fetchVideoInfo() {
     }
 
     try {
-        const response = await fetch(`http://localhost:3000/video_info?url=${encodeURIComponent(url)}`);
+        const response = await fetch(`https://kd-video-downloader-backend.onrender.com/video_info?url=${encodeURIComponent(url)}`);
         const data = await response.json();
 
         if (data.error) {
@@ -41,5 +41,5 @@ async function fetchVideoInfo() {
 }
 
 async function downloadVideo(url, format) {
-    window.open(`http://localhost:3000/download?url=${encodeURIComponent(url)}&format=${format}`, "_blank");
+    window.open(`https://kd-video-downloader-backend.onrender.com/download?url=${encodeURIComponent(url)}&format=${format}`, "_blank");
 }
